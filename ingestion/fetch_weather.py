@@ -1,9 +1,9 @@
 import requests
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from datetime import datetime, timedelta
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 
-DB_CONN = "postgresql+psycopg2://airflow:airflow@localhost:5432/airflow"
 
 def fetch_weather(city: str, lat: float, lon: float, days_back: int = 90):
     end_date = datetime.today().strftime("%Y-%m-%d")
@@ -41,15 +41,16 @@ def fetch_weather(city: str, lat: float, lon: float, days_back: int = 90):
     }, inplace=True)
 
     df["city"] = city
-    df["ingested_at"] = datetime.utcnow()
+    df["ingested_at"] = datetime.now()
     df["date"] = pd.to_datetime(df["date"])
 
     return df
 
 def load_to_postgres(df: pd.DataFrame):
-    engine = create_engine(DB_CONN)
+    hook = PostgresHook(postgres_conn_id='postgres_default')
+    engine = hook.get_sqlalchemy_engine()
 
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS weather_raw (
                 date DATE,
@@ -60,10 +61,9 @@ def load_to_postgres(df: pd.DataFrame):
                 windspeed_max_mph FLOAT,
                 humidity_max_pct FLOAT,
                 ingested_at TIMESTAMP,
-                PRIMARY KEY (date, city)
+                PRIMARY KEY (date, city, ingested_at)
             )
         """))
-        conn.commit()
 
     df.to_sql(
         "weather_raw",
