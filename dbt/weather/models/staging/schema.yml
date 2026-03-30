@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_weather
+    description: Cleaned and standardized weather data
+    columns:
+      - name: date
+        description: The date of the weather observation
+        tests:
+          - not_null
+      - name: city
+        tests:
+          - not_null
+      - name: temp_max_f
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - city
+
+  - name: weather_trends
+    description: Rolling averages and trend metrics
+    columns:
+      - name: date
+        tests:
+          - not_null

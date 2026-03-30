@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: public
+    database: airflow
+    schema: public
+    tables:
+      - name: weather_raw
+        description: Raw daily weather data from Open-Meteo API
