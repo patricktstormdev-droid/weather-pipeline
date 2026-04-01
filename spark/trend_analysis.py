@@ -2,6 +2,9 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
+## Python script to perform trend analaysis on weather data using Spark ##
+## Reads raw weather data from PostgreSQL, computes rolling averages and detects anomalies ##
+
 DB_URL = "jdbc:postgresql://localhost:5432/airflow"
 DB_PROPS = {
     "user": "airflow",
