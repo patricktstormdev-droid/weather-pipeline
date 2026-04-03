@@ -14,13 +14,21 @@ default_args = {
 }
 
 def run_ingest():
+    import sys
+    sys.path.insert(0, '/opt/airflow/ingestion')
+    from fetch_weather import fetch_weather, load_to_postgres
+    from airflow.providers.postgres.hooks.postgres import PostgresHook
+
+    hook = PostgresHook(postgres_conn_id='postgres_default')
+    engine = hook.get_sqlalchemy_engine()
+
     df = fetch_weather(
         city="Detroit",
         lat=42.3314,
         lon=-83.0458,
         days_back=1
     )
-    load_to_postgres(df)
+    load_to_postgres(df, engine)
 
 with DAG(
     dag_id='weather_ingest',

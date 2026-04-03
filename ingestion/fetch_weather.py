@@ -1,13 +1,11 @@
 import requests
 import pandas as pd
 from sqlalchemy import text
-from datetime import datetime, timedelta
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-
+from datetime import datetime, timedelta, timezone
 
 def fetch_weather(city: str, lat: float, lon: float, days_back: int = 90):
-    end_date = datetime.today().strftime("%Y-%m-%d")
-    start_date = (datetime.today() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    end_date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+    start_date = (datetime.now(timezone.utc) - timedelta(days=days_back + 7)).strftime("%Y-%m-%d")
 
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
@@ -41,15 +39,12 @@ def fetch_weather(city: str, lat: float, lon: float, days_back: int = 90):
     }, inplace=True)
 
     df["city"] = city
-    df["ingested_at"] = datetime.now()
+    df["ingested_at"] = datetime.now(timezone.utc)
     df["date"] = pd.to_datetime(df["date"])
 
     return df
 
-def load_to_postgres(df: pd.DataFrame):
-    hook = PostgresHook(postgres_conn_id='postgres_default')
-    engine = hook.get_sqlalchemy_engine()
-
+def load_to_postgres(df: pd.DataFrame, engine):
     with engine.begin() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS weather_raw (
@@ -61,20 +56,44 @@ def load_to_postgres(df: pd.DataFrame):
                 windspeed_max_mph FLOAT,
                 humidity_max_pct FLOAT,
                 ingested_at TIMESTAMP,
-                PRIMARY KEY (date, city, ingested_at)
+                PRIMARY KEY (date, city)
             )
         """))
 
-    df.to_sql(
-        "weather_raw",
-        con=engine,
-        if_exists="append",
-        index=False,
-        method="multi"
-    )
+    with engine.begin() as conn:
+        for _, row in df.iterrows():
+            conn.execute(text("""
+                INSERT INTO weather_raw
+                    (date, city, temp_max_f, temp_min_f, precipitation_mm,
+                     windspeed_max_mph, humidity_max_pct, ingested_at)
+                VALUES
+                    (:date, :city, :temp_max_f, :temp_min_f, :precipitation_mm,
+                     :windspeed_max_mph, :humidity_max_pct, :ingested_at)
+                ON CONFLICT (date, city) DO UPDATE SET
+                    temp_max_f = EXCLUDED.temp_max_f,
+                    temp_min_f = EXCLUDED.temp_min_f,
+                    precipitation_mm = EXCLUDED.precipitation_mm,
+                    windspeed_max_mph = EXCLUDED.windspeed_max_mph,
+                    humidity_max_pct = EXCLUDED.humidity_max_pct,
+                    ingested_at = EXCLUDED.ingested_at
+            """), {
+                "date": row["date"].date() if hasattr(row["date"], "date") else row["date"],
+                "city": row["city"],
+                "temp_max_f": float(row["temp_max_f"]) if row["temp_max_f"] else None,
+                "temp_min_f": float(row["temp_min_f"]) if row["temp_min_f"] else None,
+                "precipitation_mm": float(row["precipitation_mm"]) if row["precipitation_mm"] else None,
+                "windspeed_max_mph": float(row["windspeed_max_mph"]) if row["windspeed_max_mph"] else None,
+                "humidity_max_pct": float(row["humidity_max_pct"]) if row["humidity_max_pct"] else None,
+                "ingested_at": row["ingested_at"]
+            })
+
     print(f"Loaded {len(df)} records into weather_raw table.")
 
 if __name__ == "__main__":
+    from sqlalchemy import create_engine
+    engine = create_engine(
+        "postgresql+psycopg2://airflow:airflow@localhost:5432/airflow"
+    )
     df = fetch_weather(
         city="Detroit",
         lat=42.3314,
@@ -82,4 +101,4 @@ if __name__ == "__main__":
         days_back=90
     )
     print(df.head())
-    load_to_postgres(df)
+    load_to_postgres(df, engine)
