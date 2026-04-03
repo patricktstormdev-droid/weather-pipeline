@@ -33,7 +33,6 @@ services:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
       retries: 5
-
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
@@ -48,17 +47,26 @@ services:
           --lastname Storm \
           --role Admin \
           --email patrick.t.storm.dev@gmail.com
-
   airflow-webserver:
     <<: *airflow-common
     command: webserver
     ports:
       - "8080:8080"
     restart: always
-
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    restart: always
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PASSWORD: airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: always
 
 volumes:
