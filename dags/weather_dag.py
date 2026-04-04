@@ -18,9 +18,13 @@ def run_ingest():
     sys.path.insert(0, '/opt/airflow/ingestion')
     from fetch_weather import fetch_weather, load_to_postgres
     from airflow.providers.postgres.hooks.postgres import PostgresHook
+    from sqlalchemy import create_engine
 
     hook = PostgresHook(postgres_conn_id='postgres_default')
-    engine = hook.get_sqlalchemy_engine()
+    conn = hook.get_connection('postgres_default')
+    engine = create_engine(
+        f"postgresql+psycopg2://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{conn.schema}"
+    )
 
     df = fetch_weather(
         city="Detroit",
