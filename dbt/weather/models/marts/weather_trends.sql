@@ -1,5 +1,14 @@
+{{ config(
+    materialized='incremental',
+    unique_key=['date', 'city']
+) }}
+
 with base as (
     select * from {{ ref('stg_weather') }}
+    
+    {% if is_incremental() %}
+        where date > (select max(date) from {{ this }})
+    {% endif %}
 ),
 
 weekly as (
