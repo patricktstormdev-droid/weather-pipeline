@@ -7,7 +7,7 @@ all running locally via Docker.
 ---
 
 ## Dashboard preview
-![Dashboard](/weather-pipeline/docs/dashboard_weather-pipeline-04-04-2026.png)
+![Dashboard](docs/dashboard_weather-pipeline-04-04-2026.png)
 
 ---
 
