@@ -7,7 +7,7 @@ export default function Landing() {
   const [summary, setSummary] = useState(null)
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/summary')
+    axios.get(`${import.meta.env.VITE_API_URL}/api/summary`)
       .then(res => setSummary(res.data[0]))
       .catch(err => console.error(err))
   }, [])

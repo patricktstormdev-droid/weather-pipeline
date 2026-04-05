@@ -15,9 +15,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      axios.get('http://localhost:8000/api/trends'),
-      axios.get('http://localhost:8000/api/anomalies'),
-      axios.get('http://localhost:8000/api/spark-features'),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/trends`),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/anomalies`),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/spark-features`),
     ]).then(([t, a, s]) => {
       setTrends(t.data)
       setAnomalies(a.data)

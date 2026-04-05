@@ -12,3 +12,6 @@ dbt/weather/.user.yml
 dbt/weather/logs/
 dbt/weather/target/
 dbt/weather/dbt_packages/
+frontend/.env.development
+frontend/.env.production
+frontend/.env.local
