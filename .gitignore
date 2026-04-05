@@ -8,3 +8,7 @@ logs/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+dbt/weather/.user.yml
+dbt/weather/logs/
+dbt/weather/target/
+dbt/weather/dbt_packages/
