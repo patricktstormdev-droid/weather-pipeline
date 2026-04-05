@@ -48,12 +48,12 @@ with DAG(
 
     dbt_run = BashOperator(
         task_id='dbt_run',
-        bash_command='cd /opt/airflow/dbt/weather && dbt run --profiles-dir /opt/airflow/dbt/weather',
+        bash_command='cd /opt/airflow/dbt/weather && dbt run --target docker --profiles-dir /opt/airflow/dbt/weather',
     )
 
     dbt_test = BashOperator(
         task_id='dbt_test',
-        bash_command='cd /opt/airflow/dbt/weather && dbt test --profiles-dir /opt/airflow/dbt/weather',
+        bash_command='cd /opt/airflow/dbt/weather && dbt test --target docker --profiles-dir /opt/airflow/dbt/weather',
     )
 
     spark_task = BashOperator(
