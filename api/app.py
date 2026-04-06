@@ -5,18 +5,12 @@ import psycopg2.extras
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://weather-pipeline.vercel.app", "http://localhost:5173"])
 
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "postgres"),
-    "port": 5432,
-    "dbname": "airflow",
-    "user": "airflow",
-    "password": os.getenv("DB_PASSWORD", "airflow")
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def query(sql):
-    conn = psycopg2.connect(**DB_CONFIG)
+    conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute(sql)
     rows = cur.fetchall()
@@ -25,6 +19,7 @@ def query(sql):
     return [dict(r) for r in rows]
 
 @app.route("/")
+
 def root():
     return jsonify({"status": "ok"})
 
