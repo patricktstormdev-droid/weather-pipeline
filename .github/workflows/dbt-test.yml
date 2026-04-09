@@ -35,10 +35,10 @@ jobs:
       - name: Check YAML syntax
         working-directory: ./dbt/weather
         run: |
-          python3 << 'EOF'
+          pip install pyyaml
+          python3 -c "
           import yaml
           import os
-          import sys
           error_count = 0
           for root, dirs, files in os.walk('.'):
               for file in files:
@@ -51,5 +51,5 @@ jobs:
                       except Exception as e:
                           print(f'✗ {filepath}: {e}')
                           error_count += 1
-          sys.exit(error_count)
-          EOF
+          exit(error_count)
+          "
