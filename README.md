@@ -1,8 +1,22 @@
 # Weather Trend Pipeline
 
 An end-to-end data engineering pipeline that ingests daily weather data,
-transforms it through multiple layers, and surfaces trend analysis + anomaly detection
-all running locally via Docker.
+transforms it through multiple layers, and surfaces trend analysis + anomaly detection.
+
+---
+
+## Live Demo
+
+**Frontend:** [Weather-pipeline.app](https://weather-pipeline.vercel.app/) 
+
+
+**Full Stack Locally:**
+```bash
+git clone https://github.com/patricktstormdev-droid/weather-pipeline.git
+cd weather-pipeline
+docker compose up -d
+# Visit http://localhost:3000
+```
 
 ---
 
@@ -15,7 +29,12 @@ all running locally via Docker.
 
 ![Architecture](docs/architecture.png)
 
-**Stack:** Python · Airflow · PostgreSQL · dbt · PySpark · Docker
+**Tech Stack:** Python · Airflow · PostgreSQL · dbt · PySpark · React · Docker · Vercel
+
+**Deployment:**
+- **Frontend:** Deployed to [Vercel](https://vercel.com) (free tier)
+- **Backend:** Can run locally or deploy to [Render](https://render.com)
+- **Code:** Hosted on [GitHub](https://github.com) with automated CI/CD via GitHub Actions
 
 ---
 
@@ -63,43 +82,69 @@ weather-pipeline/
 
 ## How To Run
 
-### Prerequisites
+### Quick Start (View Live Frontend)
+```bash
+# The React frontend is already deployed and live:
+# https://weather-pipeline.vercel.app/dashboard
+# (Just view it in your browser — no setup needed!)
+```
+
+### Full Stack Locally (All Services)
+
+#### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) with WSL 2 enabled
 - [Git](https://git-scm.com/)
+- Python 3.11+ (for running individual scripts)
 
-### Setup
+#### Setup
 ```bash
 # Clone the repo
 git clone https://github.com/patricktstormdev-droid/weather-pipeline.git
 cd weather-pipeline
 
-# Copy and fill in environment variables
+# Copy environment file
 cp .env.example .env
 
-# Start the full stack
+# Start all services (Airflow, PostgreSQL, API)
 docker compose up -d
+
+# Wait ~30 seconds for services to start
 ```
 
-### Access Airflow
+#### Access Services Locally
+
+**Airflow UI** (Orchestration)
 - URL: `http://localhost:8080`
 - Username: `admin`
 - Password: `admin`
+- Trigger the `weather_ingest` DAG to run the pipeline
 
-### Trigger the pipeline
-1. Open the Airflow UI at `localhost:8080`
-2. Enable and trigger the `weather_ingest` DAG
-3. Watch the task turn green
+**Frontend** (Local)
+- URL: `http://localhost:5173`
+- or `http://localhost:3000` depending on your setup
+- Displays weather data from your local database
 
-### Run dbt transformations
+**API** (Optional)
+- URL: `http://localhost:8000`
+- Endpoints: `/api/summary`, `/api/trends`, `/api/anomalies`
+
+### Run Individual Components
+
+#### Run dbt transformations
 ```bash
 cd dbt/weather
 dbt run
 dbt test
 ```
 
-### Run PySpark analysis
+#### Run PySpark analysis
 ```bash
 python spark/trend_analysis.py
+```
+
+#### Ingest weather data (one-off)
+```bash
+python ingestion/fetch_weather.py
 ```
 
 ---
@@ -114,23 +159,62 @@ dbt tests enforce the following rules on every run:
 
 ---
 
-## What I'd Add Next
+## What's Been Implemented 
 
-- **Grafana dashboard** — visualize temperature trends and anomalies in real time
-- **Great Expectations** — additional data quality checks on the raw ingestion layer
-- **Multiple cities** — extend the pipeline to ingest weather for several cities and compare trends
-- **dbt incremental models** — switch from full refresh to incremental loading for efficiency
-- **CI/CD** — GitHub Actions to run `dbt test` automatically on every push
+- **Airflow DAG** with 5-task pipeline (ingest → transform → test → analyze → sync)
+- **GitHub Actions CI/CD** — Auto-tests on every push
+- **dbt Data Tests** — Validates data quality on every run
+- **Docker Compose** — One-command local setup
+- **React Frontend** — Live on Vercel
+- **Flask API** — Microservice architecture
+- **Git Version Control** — Full commit history
+
+---
+
+## What I Could Add Next
+
+- **Render Deployment** — Deploy Airflow + API to the cloud for 24/7 automation
+- **Email Alerts** — Notify on pipeline failures via Gmail SMTP
+- **Sentry Monitoring** — Track API errors in production
+- **Grafana Dashboard** — Real-time visualization of weather trends
+- **Great Expectations** — Additional data quality checks on raw layer
+- **Multiple Cities** — Extend pipeline to 5+ cities and compare trends
+- **dbt Incremental Models** — Switch to incremental loading for efficiency
+- **Unit Tests** — Add pytest for Python modules
 
 ---
 
 ## Skills Demonstrated
 
+**Data Engineering & Analytics:**
 - Pipeline orchestration with **Apache Airflow**
-- Data transformation and testing with **dbt**
+- Data transformation and testing with **dbt** (data build tool)
 - Large-scale data processing with **PySpark**
 - Relational data modeling with **PostgreSQL**
-- Containerized local development with **Docker**
 - ETL development with **Python** (requests, pandas, SQLAlchemy)
+
+**Web Development & DevOps:**
+- Frontend development with **React** + **Vite**
+- REST API design with **Flask**
+- Containerization with **Docker** and **Docker Compose**
+- Frontend deployment to **Vercel**
+- Version control with **Git** and **GitHub**
+
+**CI/CD & DevOps:**
+- **GitHub Actions** — Automated testing on every push
+- YAML workflow configuration
+- Test automation (dbt tests, linting)
+
+**Additional Skills:**
 - Secret management with environment variables
-- Version control with **Git**
+- Database connection pooling and optimization
+- API error handling and health checks
+- CORS and frontend-backend integration
+- Data quality assurance
+- README documentation and project structure
+
+---
+
+## License
+
+MIT
