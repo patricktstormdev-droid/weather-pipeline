@@ -3,9 +3,26 @@ from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
 import os
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+# Initialize Sentry for error tracking
+sentry_dsn = os.getenv("SENTRY_DSN")
+if sentry_dsn:
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=0.1,  # Sample 10% of transactions for performance monitoring
+        environment=os.getenv("ENVIRONMENT", "production")
+    )
 
 app = Flask(__name__)
-CORS(app, origins=["https://weather-pipeline.vercel.app", "http://localhost:5173"])
+CORS(app, origins=[
+    "https://weather-pipeline.vercel.app",
+    "https://weather-dashboard-xxx.vercel.app",  # Replace xxx with your actual subdomain
+    "http://localhost:5173",
+    "http://localhost:3000"
+])
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -17,6 +34,32 @@ def query(sql):
     cur.close()
     conn.close()
     return [dict(r) for r in rows]
+
+@app.errorhandler(500)
+def handle_500(e):
+    """Handle internal server errors and log to Sentry"""
+    if sentry_dsn:
+        sentry_sdk.capture_exception(e)
+    return jsonify({"error": "Internal server error"}), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Handle all exceptions"""
+    if sentry_dsn:
+        sentry_sdk.capture_exception(e)
+    return jsonify({"error": str(e)}), 500
+
+@app.route("/health")
+def health():
+    """Health check endpoint for monitoring"""
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        conn.close()
+        return jsonify({"status": "healthy", "database": "ok"}), 200
+    except Exception as e:
+        if sentry_dsn:
+            sentry_sdk.capture_exception(e)
+        return jsonify({"status": "unhealthy", "database": "error", "error": str(e)}), 503
 
 @app.route("/")
 

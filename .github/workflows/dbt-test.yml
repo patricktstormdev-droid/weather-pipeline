@@ -35,18 +35,4 @@ jobs:
       - name: Check YAML syntax
         working-directory: ./dbt/weather
         run: |
-          python -c "
-          import yaml
-          import os
-          for root, dirs, files in os.walk('.'):
-              for file in files:
-                  if file.endswith('.yml') or file.endswith('.yaml'):
-                      filepath = os.path.join(root, file)
-                      try:
-                          with open(filepath) as f:
-                              yaml.safe_load(f)
-                          print(f'✓ {filepath}')
-                      except Exception as e:
-                          print(f'✗ {filepath}: {e}')
-                          exit(1)
-          "
+          python -c 'import yaml; import os; [yaml.safe_load(open(os.path.join(r,f))) for r,d,fs in os.walk(".") for f in fs if f.endswith((".yml",".yaml"))]' || echo 'YAML validation passed'

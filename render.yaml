@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: weather-api
+    runtime: docker
+    rootDir: api
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://...
+    plan: free
+
+  - type: web
+    name: weather-airflow-scheduler
+    runtime: docker
+    rootDir: airflow
+    envVars:
+      - key: AIRFLOW__CORE__EXECUTOR
+        value: LocalExecutor
+      - key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+        value: postgresql://...
+    plan: free
+    buildCommand: pip install -r requirements.txt && airflow db migrate
+    startCommand: airflow scheduler
+
+  - type: cron
+    name: weather-pipeline-daily
+    runtime: docker
+    rootDir: airflow
+    schedule: "0 0 * * *"  # Daily at midnight UTC
+    command: airflow dags trigger weather_ingest
+    envVars:
+      - key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+        value: postgresql://...
