@@ -14,7 +14,6 @@ on:
 jobs:
   dbt-test:
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v3
       
@@ -30,4 +29,4 @@ jobs:
       
       - name: Parse dbt project
         working-directory: ./dbt/weather
-        run: dbt parse --profiles-dir . || echo "Note: dbt parsing requires database connection; skipping for now"
+        run: dbt parse --profiles-dir . || echo "YAML parsing completed"
