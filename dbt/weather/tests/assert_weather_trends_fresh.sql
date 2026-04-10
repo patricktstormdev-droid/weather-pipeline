@@ -3,7 +3,6 @@
     pre_hook="SET SEARCH_PATH TO {{ target.schema }}"
 ) }}
 
-SELECT *
+SELECT MAX(date)::date as latest_date
 FROM {{ ref('weather_trends') }}
-GROUP BY 1
 HAVING MAX(date) < CURRENT_DATE - INTERVAL '3 days'
