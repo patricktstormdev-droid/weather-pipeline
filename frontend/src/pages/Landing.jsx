@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { formatDateLong, formatNumber } from '../utils/formatters'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -81,18 +82,42 @@ export default function Landing() {
       {summary && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
           gap: 1,
           background: '#1e2330',
           borderTop: '1px solid #2d3748'
         }}>
           {[
-            { label: 'Days tracked', value: summary.total_days },
-            { label: 'Avg temperature', value: `${summary.avg_temp_f}°F` },
-            { label: 'Hottest day', value: `${summary.max_temp_f}°F` },
-            { label: 'Coldest day', value: `${summary.min_temp_f}°F` },
-            { label: 'Total precipitation', value: `${summary.total_precipitation_mm}mm` },
-            { label: 'Anomaly days', value: summary.anomaly_days },
+            { 
+              label: 'Days tracked', 
+              value: summary.total_days,
+              detail: `${formatDateLong(summary.date_start)} to ${formatDateLong(summary.date_end)}`
+            },
+            { 
+              label: 'Avg temperature', 
+              value: `${summary.avg_temp_f}°F`,
+              detail: null
+            },
+            { 
+              label: 'Hottest day', 
+              value: `${summary.max_temp_f}°F`,
+              detail: formatDateLong(summary.date_max_temp)
+            },
+            { 
+              label: 'Coldest day', 
+              value: `${summary.min_temp_f}°F`,
+              detail: formatDateLong(summary.date_min_temp)
+            },
+            { 
+              label: 'Total precipitation', 
+              value: `${formatNumber(summary.total_precipitation_mm)}mm`,
+              detail: null
+            },
+            { 
+              label: 'Anomaly days', 
+              value: summary.anomaly_days,
+              detail: null
+            },
           ].map(stat => (
             <div key={stat.label} style={{
               padding: '28px 24px',
@@ -105,6 +130,11 @@ export default function Landing() {
               <div style={{ fontSize: 13, color: '#64748b', marginTop: 6 }}>
                 {stat.label}
               </div>
+              {stat.detail && (
+                <div style={{ fontSize: 11, color: '#475569', marginTop: 8 }}>
+                  {stat.detail}
+                </div>
+              )}
             </div>
           ))}
         </div>
