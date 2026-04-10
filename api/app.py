@@ -71,9 +71,13 @@ def summary():
     return jsonify(query("""
         SELECT
             COUNT(*)::int                                        AS total_days,
+            MIN(date)                                            AS date_start,
+            MAX(date)                                            AS date_end,
             ROUND(AVG(temp_avg_f)::numeric, 1)                  AS avg_temp_f,
             ROUND(MAX(temp_max_f)::numeric, 1)                  AS max_temp_f,
+            (SELECT date FROM weather_spark_features WHERE temp_max_f = (SELECT MAX(temp_max_f) FROM weather_spark_features) LIMIT 1) AS date_max_temp,
             ROUND(MIN(temp_min_f)::numeric, 1)                  AS min_temp_f,
+            (SELECT date FROM weather_spark_features WHERE temp_min_f = (SELECT MIN(temp_min_f) FROM weather_spark_features) LIMIT 1) AS date_min_temp,
             ROUND(SUM(precipitation_mm)::numeric, 1)            AS total_precipitation_mm,
             COUNT(*) FILTER (WHERE is_anomaly = true)::int      AS anomaly_days
         FROM weather_spark_features
