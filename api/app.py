@@ -19,7 +19,7 @@ if sentry_dsn:
 app = Flask(__name__)
 CORS(app, origins=[
     "https://weather-pipeline.vercel.app",
-    "https://weather-dashboard-xxx.vercel.app",  # Replace xxx with your actual subdomain
+    "https://weather-pipeline.vercel.app/dashboard.app",
     "http://localhost:5173",
     "http://localhost:3000"
 ])
@@ -71,13 +71,13 @@ def summary():
     return jsonify(query("""
         SELECT
             COUNT(*)::int                                        AS total_days,
-            MIN(date)                                            AS date_start,
-            MAX(date)                                            AS date_end,
+            MIN(date)::text                                      AS date_start,
+            MAX(date)::text                                      AS date_end,
             ROUND(AVG(temp_avg_f)::numeric, 1)                  AS avg_temp_f,
             ROUND(MAX(temp_max_f)::numeric, 1)                  AS max_temp_f,
-            (SELECT date FROM weather_spark_features WHERE temp_max_f = (SELECT MAX(temp_max_f) FROM weather_spark_features) LIMIT 1) AS date_max_temp,
+            (SELECT date::text FROM weather_spark_features WHERE temp_max_f = (SELECT MAX(temp_max_f) FROM weather_spark_features) LIMIT 1) AS date_max_temp,
             ROUND(MIN(temp_min_f)::numeric, 1)                  AS min_temp_f,
-            (SELECT date FROM weather_spark_features WHERE temp_min_f = (SELECT MIN(temp_min_f) FROM weather_spark_features) LIMIT 1) AS date_min_temp,
+            (SELECT date::text FROM weather_spark_features WHERE temp_min_f = (SELECT MIN(temp_min_f) FROM weather_spark_features) LIMIT 1) AS date_min_temp,
             ROUND(SUM(precipitation_mm)::numeric, 1)            AS total_precipitation_mm,
             COUNT(*) FILTER (WHERE is_anomaly = true)::int      AS anomaly_days
         FROM weather_spark_features
@@ -87,7 +87,7 @@ def summary():
 def trends():
     return jsonify(query("""
         SELECT
-            date,
+            date::text,
             city,
             temp_max_f,
             temp_min_f,
@@ -107,7 +107,7 @@ def trends():
 def anomalies():
     return jsonify(query("""
         SELECT
-            date,
+            date::text,
             city,
             temp_avg_f,
             rolling_30day_avg_temp_f,
@@ -122,7 +122,7 @@ def anomalies():
 def spark_features():
     return jsonify(query("""
         SELECT
-            date,
+            date::text,
             city,
             temp_avg_f,
             rolling_7day_avg_temp_f,
