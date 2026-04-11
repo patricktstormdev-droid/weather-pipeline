@@ -72,7 +72,7 @@ export default function Landing() {
             fontSize: 16,
             fontWeight: 600,
             cursor: 'pointer',
-            marginRight: 12
+            marginRight: 32
           }}
         >
           View Dashboard
