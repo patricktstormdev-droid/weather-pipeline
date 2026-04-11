@@ -35,7 +35,7 @@ export default function TempTrendChart({ data }) {
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={formatted}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
-          <XAxis dataKey="display_date" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} interval={13} />
+          <XAxis dataKey="display_date" tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} interval={13} angle={-45} textAnchor="end" height={80} />
           <YAxis tick={{ fill: '#64748b', fontSize: 11 }} tickLine={false} unit="°F" />
           <Tooltip content={<CustomTooltip />} />
           <Legend wrapperStyle={{ color: '#94a3b8', fontSize: 13 }} />
