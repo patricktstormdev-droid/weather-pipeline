@@ -39,7 +39,6 @@ export default function Dashboard() {
 
   // Initial load
   useEffect(() => {
-    setLoading(true)
     Promise.all([
       axios.get(`${import.meta.env.VITE_API_URL}/api/trends`),
       axios.get(`${import.meta.env.VITE_API_URL}/api/anomalies`),
