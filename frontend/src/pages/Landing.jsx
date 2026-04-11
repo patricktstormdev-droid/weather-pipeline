@@ -72,10 +72,39 @@ export default function Landing() {
             fontSize: 16,
             fontWeight: 600,
             cursor: 'pointer',
+            marginRight: 12
           }}
         >
           View Dashboard
         </button>
+
+        <a
+          href="https://github.com/patricktstormdev-droid/weather-pipeline"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            background: 'transparent',
+            color: '#60a5fa',
+            border: '1px solid #60a5fa',
+            borderRadius: 8,
+            padding: '14px 32px',
+            fontSize: 16,
+            fontWeight: 600,
+            cursor: 'pointer',
+            textDecoration: 'none',
+            transition: 'all 0.2s'
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = '#60a5fa'
+            e.target.style.color = '#0f1117'
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = 'transparent'
+            e.target.style.color = '#60a5fa'
+          }}
+        >
+          View Code
+        </a>
       </div>
 
       {/* Summary stats */}

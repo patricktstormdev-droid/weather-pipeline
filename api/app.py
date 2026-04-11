@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
@@ -85,7 +85,16 @@ def summary():
 
 @app.route("/api/trends")
 def trends():
-    return jsonify(query("""
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    where_clause = "WHERE 1=1"
+    if start_date:
+        where_clause += f" AND date >= '{start_date}'"
+    if end_date:
+        where_clause += f" AND date <= '{end_date}'"
+    
+    return jsonify(query(f"""
         SELECT
             date::text,
             city,
@@ -100,12 +109,22 @@ def trends():
             rolling_30day_min_temp_f,
             rolling_30day_max_temp_f
         FROM weather_trends
+        {where_clause}
         ORDER BY date ASC
     """))
 
 @app.route("/api/anomalies")
 def anomalies():
-    return jsonify(query("""
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    where_clause = "WHERE is_anomaly = true"
+    if start_date:
+        where_clause += f" AND date >= '{start_date}'"
+    if end_date:
+        where_clause += f" AND date <= '{end_date}'"
+    
+    return jsonify(query(f"""
         SELECT
             date::text,
             city,
@@ -114,13 +133,22 @@ def anomalies():
             temp_stddev_30day,
             is_anomaly
         FROM weather_spark_features
-        WHERE is_anomaly = true
+        {where_clause}
         ORDER BY date DESC
     """))
 
 @app.route("/api/spark-features")
 def spark_features():
-    return jsonify(query("""
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    where_clause = "WHERE 1=1"
+    if start_date:
+        where_clause += f" AND date >= '{start_date}'"
+    if end_date:
+        where_clause += f" AND date <= '{end_date}'"
+    
+    return jsonify(query(f"""
         SELECT
             date::text,
             city,
@@ -130,6 +158,7 @@ def spark_features():
             temp_stddev_30day,
             is_anomaly
         FROM weather_spark_features
+        {where_clause}
         ORDER BY date ASC
     """))
 
