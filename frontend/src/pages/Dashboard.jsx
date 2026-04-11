@@ -39,7 +39,20 @@ export default function Dashboard() {
 
   // Initial load
   useEffect(() => {
-    fetchData('', '')
+    setLoading(true)
+    Promise.all([
+      axios.get(`${import.meta.env.VITE_API_URL}/api/trends`),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/anomalies`),
+      axios.get(`${import.meta.env.VITE_API_URL}/api/spark-features`),
+    ]).then(([t, a, s]) => {
+      setTrends(t.data)
+      setAnomalies(a.data)
+      setSpark(s.data)
+      setLoading(false)
+    }).catch(err => {
+      console.error(err)
+      setLoading(false)
+    })
   }, [])
 
   const handleDateFilter = () => {
