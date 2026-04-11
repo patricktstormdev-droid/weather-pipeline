@@ -72,7 +72,7 @@ export default function Landing() {
             fontSize: 16,
             fontWeight: 600,
             cursor: 'pointer',
-            marginRight: 32
+            marginRight: 12
           }}
         >
           View Dashboard
@@ -92,7 +92,8 @@ export default function Landing() {
             fontWeight: 600,
             cursor: 'pointer',
             textDecoration: 'none',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            marginTop: 12
           }}
           onMouseOver={(e) => {
             e.target.style.background = '#60a5fa'
