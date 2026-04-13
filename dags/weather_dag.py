@@ -83,11 +83,8 @@ with DAG(
         task_id='sync_to_render',
         bash_command="""
             set -euo pipefail
-            # Get source database connection details from environment or Airflow connection
-            SOURCE_CONN='postgresql://airflow:airflow@postgres/airflow'
-            
-            # Dump only weather-related tables and restore to Render
-            PGPASSWORD = airflow pg_dump -h postgres -U airflow -d airflow \
+            PGPASSWORD=airflow pg_dump \
+                -h postgres -U airflow -d airflow \
                 --clean --if-exists \
                 -t weather_raw -t weather_trends -t weather_spark_features | \
             psql ${RENDER_DATABASE_URL}
