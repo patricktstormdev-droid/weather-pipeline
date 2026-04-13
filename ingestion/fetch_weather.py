@@ -4,8 +4,8 @@ from sqlalchemy import text
 from datetime import datetime, timedelta, timezone
 
 def fetch_weather(city: str, lat: float, lon: float, days_back: int = 90):
-    end_date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
-    start_date = (datetime.now(timezone.utc) - timedelta(days=days_back + 7)).strftime("%Y-%m-%d")
+    end_date = (datetime.now(timezone.utc) - timedelta(days=5)).strftime("%Y-%m-%d")
+    start_date = (datetime.now(timezone.utc) - timedelta(days=days_back + 5)).strftime("%Y-%m-%d")
 
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
