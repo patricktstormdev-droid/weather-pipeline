@@ -40,6 +40,7 @@ services:
       retries: 5
   airflow-init:
     <<: *airflow-common
+    restart: on-failure
     entrypoint: /bin/bash
     command: 
       - -c 
@@ -53,12 +54,18 @@ services:
           --role Admin \
           --email patrick.t.storm.dev@gmail.com
   airflow-webserver:
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
     <<: *airflow-common
     command: webserver
     ports:
       - "8080:8080"
     restart: always
   airflow-scheduler:
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
     <<: *airflow-common
     command: scheduler
     restart: always
@@ -67,8 +74,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_HOST: postgres
-      DB_PASSWORD: airflow
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/airflow
     depends_on:
       postgres:
         condition: service_healthy
