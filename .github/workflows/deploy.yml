@@ -8,48 +8,27 @@ jobs:
   notify-render:
     name: Trigger Render API Deployment
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
     steps:
-      - name: Trigger Render API deployment
+      - name: Trigger Render deployment
         run: |
           curl --request POST \
             --url "https://api.render.com/deploy/srv-${{ secrets.RENDER_API_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}" \
             --header 'accept: application/json'
-        continue-on-error: true
-  
-  notify-vercel:
-    name: Trigger Vercel Frontend Deployment
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Trigger Vercel deployment
-        run: |
-          curl --request POST \
-            --url "https://api.vercel.com/v13/deployments?teamId=${{ secrets.VERCEL_TEAM_ID }}" \
-            --header "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            --header 'Content-Type: application/json' \
-            --data '{"name":"weather-dashboard","gitSource":{"type":"github","repo":"YOUR_USERNAME/weather-pipeline","ref":"main"}}' \
-            || echo "Manual deployment trigger in case API call fails"
-        continue-on-error: true
 
-  # Alternative: Use Vercel's official GitHub integration (simpler)
-  vercel-deploy:
-    name: Deploy Frontend (via GitHub Integration)
+  notify-vercel:
+    name: Check Frontend Changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
     steps:
       - uses: actions/checkout@v3
-      
+        with:
+          fetch-depth: 2
+
       - name: Check for frontend changes
         id: changes
         run: |
           if git diff --name-only HEAD~1..HEAD | grep -q "^frontend/"; then
             echo "frontend_changed=true" >> $GITHUB_OUTPUT
+            echo "Frontend changes detected — Vercel will auto-deploy via GitHub integration"
+          else
+            echo "No frontend changes detected"
           fi
-      
-      - name: Notify deployment complete
-        if: steps.changes.outputs.frontend_changed == 'true'
-        run: echo "Frontend changes detected. Vercel will auto-deploy via GitHub integration."
