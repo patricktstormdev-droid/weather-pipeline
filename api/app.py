@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from psycopg2 import pool
+from psycopg2 import pool as pg_pool
+import threading
 import psycopg2
 import psycopg2.extras
 import os
@@ -85,6 +86,17 @@ def summary():
     """))
 
 connection_pool = pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+
+_pool = None
+_pool_lock = threading.Lock()
+
+def get_pool():
+    global _pool
+    if _pool is None:
+        with _pool_lock:
+            if _pool is None:  # double-checked locking
+                _pool = pg_pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+    return _pool
 
 def query(sql, params=None):
     conn = connection_pool.getconn()
