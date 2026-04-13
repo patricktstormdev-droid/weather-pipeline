@@ -46,7 +46,7 @@ def run_ingest():
         ("Detroit", 42.3314, -83.0458),
         ("Chicago", 41.8781, -87.6298),
     ]:
-        df = fetch_weather(city=city, lat=lat, lon=lon, days_back=1)
+        df = fetch_weather(city=city, lat=lat, lon=lon, days_back=7)
         load_to_postgres(df, engine)
 
 with DAG(
