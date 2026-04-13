@@ -25,7 +25,7 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
     'on_failure_callback': task_failure_alert,
-    'email': [os.getenv('AIRFLOW_ALERT_EMAIL', 'patrick@example.com')],
+    'email': [os.getenv('AIRFLOW_ALERT_EMAIL', 'patrick.t.storm.dev@gmail.com')],
     'email_on_failure': True,
     'email_on_retry': False,
 }
@@ -86,7 +86,9 @@ with DAG(
             SOURCE_CONN='postgresql://airflow:airflow@postgres/airflow'
             
             # Dump only weather-related tables and restore to Render
-            pg_dump -h postgres -U airflow -d airflow -t weather_raw -t weather_trends -t weather_spark_features | \
+            pg_dump -h postgres -U airflow -d airflow \
+                --clean --if-exists \
+                -t weather_raw -t weather_trends -t weather_spark_features | \
             psql ${RENDER_DATABASE_URL}
         """,
         env={'RENDER_DATABASE_URL': os.environ.get('RENDER_DATABASE_URL', '')},
