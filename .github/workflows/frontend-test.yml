@@ -28,6 +28,11 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: npm install
+        
+      - name: Check lint script exists
+        working-directory: ./frontend
+        run: |
+          npm run lint --if-present || echo "No lint script found, skipping"
       
       - name: Lint with ESLint
         working-directory: ./frontend
