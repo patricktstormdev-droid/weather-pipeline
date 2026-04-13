@@ -7,7 +7,7 @@ transforms it through multiple layers, and surfaces trend analysis + anomaly det
 
 ## Live Demo
 
-**Frontend:** [Weather-pipeline.app](https://weather-pipeline.vercel.app/) 
+**Frontend:** [weather-pipeline.vercel.app](https://weather-pipeline.vercel.app/) 
 
 
 **Full Stack Locally:**
