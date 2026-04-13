@@ -38,9 +38,13 @@ jobs:
           # exit-zero treats all errors as warnings
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       
-      - name: Check if Flask app starts
+      - name: Check if Flask app loads
         working-directory: ./api
         env:
-          DATABASE_URL: postgresql://user:pass@localhost/testdb
+            DATABASE_URL: postgresql://user:pass@localhost/testdb
         run: |
-          python -c "from app import app; print('Flask app loads successfully')"
+          python -c "
+          from app import app
+          assert app is not None
+          print('Flask app loads successfully')
+          "
