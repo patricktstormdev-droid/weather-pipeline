@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from psycopg2 import pool
 import psycopg2
 import psycopg2.extras
 import os
@@ -83,35 +84,35 @@ def summary():
         FROM weather_spark_features
     """))
 
+connection_pool = pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+
+def query(sql, params=None):
+    conn = connection_pool.getconn()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(sql, params or ())
+        rows = cur.fetchall()
+        cur.close()
+        return [dict(r) for r in rows]
+    finally:
+        connection_pool.putconn(conn)
+
 @app.route("/api/trends")
 def trends():
     start_date = request.args.get('start_date', '')
     end_date = request.args.get('end_date', '')
     
-    where_clause = "WHERE 1=1"
+    conditions = []
+    params = []
     if start_date:
-        where_clause += f" AND date >= '{start_date}'"
+        conditions.append("date >= %s")
+        params.append(start_date)
     if end_date:
-        where_clause += f" AND date <= '{end_date}'"
+        conditions.append("date <= %s")
+        params.append(end_date)
     
-    return jsonify(query(f"""
-        SELECT
-            date::text,
-            city,
-            temp_max_f,
-            temp_min_f,
-            temp_avg_f,
-            precipitation_mm,
-            windspeed_max_mph,
-            humidity_max_pct,
-            rolling_7day_avg_temp_f,
-            rolling_7day_avg_precip_mm,
-            rolling_30day_min_temp_f,
-            rolling_30day_max_temp_f
-        FROM weather_trends
-        {where_clause}
-        ORDER BY date ASC
-    """))
+    where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+    return jsonify(query(f"SELECT ... FROM weather_trends {where} ORDER BY date ASC", params))
 
 @app.route("/api/anomalies")
 def anomalies():
