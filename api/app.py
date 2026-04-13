@@ -85,7 +85,7 @@ def summary():
         FROM weather_spark_features
     """))
 
-connection_pool = pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+# connection_pool = pool.SimpleConnectionPool(1, 10, DATABASE_URL)
 
 _pool = None
 _pool_lock = threading.Lock()
