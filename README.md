@@ -21,12 +21,12 @@ docker compose up -d
 ---
 
 ## Dashboard preview
-![Dashboard](docs/dashboard_weather-pipeline-04-04-2026.png)
+![Dashboard](docs/dashboard_weather-pipeline-04-16-2026.png)
 
 ---
 
 ## Architecture
-
+ 
 ![Architecture](docs/architecture.png)
 
 **Tech Stack:** Python · Airflow · PostgreSQL · dbt · PySpark · React · Docker · Vercel
@@ -173,14 +173,10 @@ dbt tests enforce the following rules on every run:
 
 ## What I Could Add Next
 
-- **Render Deployment** — Deploy Airflow + API to the cloud for 24/7 automation
-- **Email Alerts** — Notify on pipeline failures via Gmail SMTP
-- **Sentry Monitoring** — Track API errors in production
-- **Grafana Dashboard** — Real-time visualization of weather trends
-- **Great Expectations** — Additional data quality checks on raw layer
-- **Multiple Cities** — Extend pipeline to 5+ cities and compare trends
-- **dbt Incremental Models** — Switch to incremental loading for efficiency
-- **Unit Tests** — Add pytest for Python modules
+- **Grafana Dashboard** — Real-time visualization of weather trends alongside the React frontend
+- **Great Expectations** — Additional data quality checks on the raw ingestion layer
+- **dbt Incremental Models** — Switch from full refresh to incremental loading for efficiency at scale
+- **pytest Unit Tests** — Add unit tests for fetch_weather.py and API endpoints
 
 ---
 
