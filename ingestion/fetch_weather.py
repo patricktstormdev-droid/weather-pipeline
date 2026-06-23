@@ -1,3 +1,4 @@
+import os
 import requests
 import pandas as pd
 from sqlalchemy import text
@@ -91,9 +92,12 @@ def load_to_postgres(df: pd.DataFrame, engine):
 
 if __name__ == "__main__":
     from sqlalchemy import create_engine
-    engine = create_engine(
-        "postgresql+psycopg2://airflow:airflow@localhost:5432/airflow"
-    )
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        database_url = "postgresql+psycopg2://airflow:airflow@localhost:5432/airflow"
+
+    engine = create_engine(database_url)
+
     df = fetch_weather(
         city="Detroit",
         lat=42.3314,
