@@ -5,7 +5,7 @@ services:
     rootDir: api
     envVars:
       - key: DATABASE_URL
-        value: postgresql://...
+        value: RENDER_DATABASE_URL
     plan: free
 
   - type: web
@@ -16,7 +16,7 @@ services:
       - key: AIRFLOW__CORE__EXECUTOR
         value: LocalExecutor
       - key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
-        value: postgresql://...
+        value: RENDER_DATABASE_URL
     plan: free
     buildCommand: pip install -r requirements.txt && airflow db migrate
     startCommand: airflow scheduler
@@ -25,8 +25,8 @@ services:
     name: weather-pipeline-daily
     runtime: docker
     rootDir: airflow
-    schedule: "0 0 * * *"  # Daily at midnight UTC
+    schedule: "0 0 * * *"
     command: airflow dags trigger weather_ingest
     envVars:
       - key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
-        value: postgresql://...
+        value: RENDER_DATABASE_URL
